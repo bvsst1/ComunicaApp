@@ -13,6 +13,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import com.example.comuniaapp.ui.theme.ComuniaAppTheme
+import com.example.comuniaapp.ui.screens.PanelAccesibilidadScreen
+import com.example.comuniaapp.ui.screens.PanelAvisosScreen
 
 data class Usuario(
     val nombre: String,
@@ -23,7 +25,7 @@ data class Usuario(
 )
 
 private enum class Destino {
-    LOGIN, RECUPERAR_CONTRASENA, REGISTRO, INICIO
+    LOGIN, RECUPERAR_CONTRASENA, REGISTRO, INICIO, PANEL_ACCESIBILIDAD, PANEL_AVISOS
 }
 
 class MainActivity : ComponentActivity() {
@@ -80,7 +82,17 @@ private fun ComunicaApp() {
                 onCerrarSesion = {
                     usuarioActivo = null
                     destino = Destino.LOGIN
-                }
+                },
+                onAbrirPanel = { destino = Destino.PANEL_ACCESIBILIDAD },
+                onAbrirAvisos = { destino = Destino.PANEL_AVISOS }
+            )
+
+            Destino.PANEL_ACCESIBILIDAD -> PanelAccesibilidadScreen(
+                onVolver = { destino = Destino.INICIO }
+            )
+
+            Destino.PANEL_AVISOS -> PanelAvisosScreen(
+                onVolver = { destino = Destino.INICIO }
             )
         }
     }

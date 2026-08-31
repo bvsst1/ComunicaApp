@@ -29,7 +29,12 @@ import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(nombreUsuario: String, onCerrarSesion: () -> Unit) {
+fun HomeScreen(
+    nombreUsuario: String,
+    onCerrarSesion: () -> Unit,
+    onAbrirPanel: () -> Unit,
+    onAbrirAvisos: () -> Unit
+) {
     var textoGrande by rememberSaveable { mutableStateOf(false) }
     var altoContraste by rememberSaveable { mutableStateOf(false) }
     val fondo = if (altoContraste) MaterialTheme.colorScheme.inverseOnSurface else MaterialTheme.colorScheme.background
@@ -76,9 +81,24 @@ fun HomeScreen(nombreUsuario: String, onCerrarSesion: () -> Unit) {
                     style = MaterialTheme.typography.titleLarge
                 )
             }
-            AccesoRapido("Escribir para Comunicar", "Abrir bloc de notas de comunicación visual rápida", textoGrande)
-            AccesoRapido("Panel de Noticias y Avisos", "Abrir noticias y avisos accesibles", textoGrande)
-            AccesoRapido("Historial de Frases Rápidas", "Abrir historial de frases rápidas", textoGrande)
+            AccesoRapido(
+                titulo = "Escribir para Comunicar",
+                descripcion = "Abrir panel de frases y comunicación visual rápida",
+                textoGrande = textoGrande,
+                onClick = onAbrirPanel
+            )
+            AccesoRapido(
+                titulo = "Panel de Noticias y Avisos",
+                descripcion = "Abrir noticias y avisos accesibles",
+                textoGrande = textoGrande,
+                onClick = onAbrirAvisos
+            )
+            AccesoRapido(
+                titulo = "Historial de Frases Rápidas",
+                descripcion = "Abrir historial de frases rápidas",
+                textoGrande = textoGrande,
+                onClick = onAbrirPanel
+            )
             OutlinedButton(onClick = onCerrarSesion, modifier = Modifier.fillMaxWidth()) {
                 Text("Cerrar sesión", fontSize = if (textoGrande) 20.sp else 16.sp)
             }
@@ -87,12 +107,17 @@ fun HomeScreen(nombreUsuario: String, onCerrarSesion: () -> Unit) {
 }
 
 @Composable
-private fun AccesoRapido(titulo: String, descripcion: String, textoGrande: Boolean) {
+private fun AccesoRapido(
+    titulo: String,
+    descripcion: String,
+    textoGrande: Boolean,
+    onClick: () -> Unit = {}
+) {
     Card(
         modifier = Modifier
             .fillMaxWidth()
             .semantics { contentDescription = descripcion },
-        onClick = {}
+        onClick = onClick
     ) {
         Column(modifier = Modifier.padding(20.dp)) {
             Text(titulo, fontSize = if (textoGrande) 22.sp else 18.sp, style = MaterialTheme.typography.titleMedium)
