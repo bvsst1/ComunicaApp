@@ -33,7 +33,9 @@ fun HomeScreen(
     nombreUsuario: String,
     onCerrarSesion: () -> Unit,
     onAbrirPanel: () -> Unit,
-    onAbrirAvisos: () -> Unit
+    onAbrirAvisos: () -> Unit,
+    onAbrirRecomendaciones: () -> Unit,
+    onAbrirUsuariosRegistrados: () -> Unit
 ) {
     var textoGrande by rememberSaveable { mutableStateOf(false) }
     var altoContraste by rememberSaveable { mutableStateOf(false) }
@@ -98,6 +100,18 @@ fun HomeScreen(
                 descripcion = "Abrir historial de frases rápidas",
                 textoGrande = textoGrande,
                 onClick = onAbrirPanel
+            )
+            AccesoRapido(
+                titulo = "Recomendaciones de la semana",
+                descripcion = "Abrir consejos de comunicación de la semana",
+                textoGrande = textoGrande,
+                onClick = onAbrirRecomendaciones
+            )
+            AccesoRapido(
+                titulo = "Usuarios registrados",
+                descripcion = "Abrir tabla de usuarios registrados",
+                textoGrande = textoGrande,
+                onClick = onAbrirUsuariosRegistrados
             )
             OutlinedButton(onClick = onCerrarSesion, modifier = Modifier.fillMaxWidth()) {
                 Text("Cerrar sesión", fontSize = if (textoGrande) 20.sp else 16.sp)

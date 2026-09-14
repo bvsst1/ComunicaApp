@@ -15,6 +15,8 @@ import androidx.compose.ui.Modifier
 import com.example.comuniaapp.ui.theme.ComuniaAppTheme
 import com.example.comuniaapp.ui.screens.PanelAccesibilidadScreen
 import com.example.comuniaapp.ui.screens.PanelAvisosScreen
+import com.example.comuniaapp.ui.screens.RecomendacionesScreen
+import com.example.comuniaapp.ui.screens.UsuariosRegistradosScreen
 
 data class Usuario(
     val nombre: String,
@@ -25,7 +27,7 @@ data class Usuario(
 )
 
 private enum class Destino {
-    LOGIN, RECUPERAR_CONTRASENA, REGISTRO, INICIO, PANEL_ACCESIBILIDAD, PANEL_AVISOS
+    LOGIN, RECUPERAR_CONTRASENA, REGISTRO, INICIO, PANEL_ACCESIBILIDAD, PANEL_AVISOS, RECOMENDACIONES, USUARIOS_REGISTRADOS
 }
 
 class MainActivity : ComponentActivity() {
@@ -84,7 +86,9 @@ private fun ComunicaApp() {
                     destino = Destino.LOGIN
                 },
                 onAbrirPanel = { destino = Destino.PANEL_ACCESIBILIDAD },
-                onAbrirAvisos = { destino = Destino.PANEL_AVISOS }
+                onAbrirAvisos = { destino = Destino.PANEL_AVISOS },
+                onAbrirRecomendaciones = { destino = Destino.RECOMENDACIONES },
+                onAbrirUsuariosRegistrados = { destino = Destino.USUARIOS_REGISTRADOS }
             )
 
             Destino.PANEL_ACCESIBILIDAD -> PanelAccesibilidadScreen(
@@ -92,6 +96,15 @@ private fun ComunicaApp() {
             )
 
             Destino.PANEL_AVISOS -> PanelAvisosScreen(
+                onVolver = { destino = Destino.INICIO }
+            )
+
+            Destino.RECOMENDACIONES -> RecomendacionesScreen(
+                onVolver = { destino = Destino.INICIO }
+            )
+
+            Destino.USUARIOS_REGISTRADOS -> UsuariosRegistradosScreen(
+                usuarios = usuarios,
                 onVolver = { destino = Destino.INICIO }
             )
         }
