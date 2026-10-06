@@ -36,7 +36,9 @@ FONT = Path(r'C:\Windows\Fonts\arial.ttf')
 BOLD = Path(r'C:\Windows\Fonts\arialbd.ttf')
 def font(size=30, bold=False): return ImageFont.truetype(str(BOLD if bold else FONT), size)
 def wireframe(path, screens):
-    img = Image.new('RGB', (1300, 1720), 'white'); draw = ImageDraw.Draw(img)
+    width = 650 if len(screens) == 1 else 1300
+    height = 40 + ((len(screens) + 1) // 2) * 840
+    img = Image.new('RGB', (width, height), 'white'); draw = ImageDraw.Draw(img)
     for i, (title, lines) in enumerate(screens):
         x = 45 + (i % 2) * 650; y = 40 + (i // 2) * 840
         draw.rounded_rectangle((x, y, x+560, y+780), radius=24, outline='#303030', width=4)
@@ -60,6 +62,8 @@ wireframe(QA/'mockup-funciones.png', [
     ('Noticias y avisos', ['[ Volver ]  [ A ] [ A+ ]', 'Información accesible', 'Título del aviso', 'Fecha y prioridad', 'Contenido del aviso', 'Ejemplos informativos']),
     ('Recomendaciones', ['[ Volver ]', 'Lunes: anticipa el tema', 'Martes: usa frases cortas', 'Miércoles: confirma el mensaje', 'Jueves: usa apoyo visual', 'Viernes: da tiempo a responder']),
     ('Mi perfil', ['[ Volver ]', 'Nombre: Ana Pérez', 'Usuario: ana', 'Correo: ana@ejemplo.cl', 'Datos de la cuenta activa', 'Frases y perfil privados'])])
+wireframe(QA/'mockup-historial.png', [
+    ('Historial de frases', ['[ Volver ]', '[ Nueva frase ] [ Guardar ]', 'Contexto: Todas  Salud', 'Compras  Transporte  General', '[ Buscar frase guardada ]', 'Solo uso frecuente [ ]', 'General: Necesito ayuda', '[ Mostrar y hablar ]', '[ Editar ] [ Eliminar ]'])])
 
 img=Image.new('RGB',(1300,850),'white'); draw=ImageDraw.Draw(img)
 draw.rounded_rectangle((390,20,910,110),radius=14,fill='#eeeeee',outline='black',width=2)
@@ -128,9 +132,12 @@ cell_text(d.tables[3].cell(1,0),[
     'El trabajo incorpora validaciones, estados de carga, errores visuales, texto grande, contraste, pruebas JUnit y preparación del APK de distribución. La consulta del antiguo arreglo de usuarios se actualiza a un perfil privado; las contraseñas dejan de almacenarse y mostrarse en la interfaz.',
     'La lectura de mensajes con TextToSpeech es una acción voluntaria. Las confirmaciones de la aplicación se mantienen visuales. No se incorporan chat entre usuarios ni reconocimiento ambiental de sonido.'])
 
-cell_text(d.tables[4].cell(1,0),['Mockups de las ocho vistas de la aplicación. El flujo de acceso conduce al inicio y desde allí al panel, historial, avisos, recomendaciones y perfil.'])
+cell_text(d.tables[4].cell(1,0),['Mockups de las nueve vistas de la aplicación. El flujo de acceso conduce al inicio y desde allí al panel, historial, avisos, recomendaciones y perfil.'])
 for name in ['mockup-acceso.png','mockup-funciones.png']:
     p=d.tables[4].cell(1,0).add_paragraph(); p.add_run().add_picture(str(QA/name),width=Inches(5.25)); format_p(p)
+p=d.tables[4].cell(1,0).add_paragraph(); p.add_run('Historial de frases'); format_p(p,True)
+p=d.tables[4].cell(1,0).add_paragraph(); p.add_run().add_picture(str(QA/'mockup-historial.png'),width=Inches(2.9)); format_p(p)
+p=d.tables[4].cell(1,0).add_paragraph(); p.add_run('El historial reutiliza el panel de frases con su propio título y acceso desde Inicio. Permite consultar y administrar los datos de la cuenta activa.'); format_p(p)
 
 cell_text(d.tables[5].cell(1,0),[
     'Login: captura correo y contraseña, valida los campos e inicia sesión con Firebase. Registro: captura nombre, apellido, alias, correo y confirmación de contraseña; crea la cuenta y el perfil. Recuperación: solicita a Firebase el envío de instrucciones al correo de la cuenta.',
@@ -139,12 +146,13 @@ cell_text(d.tables[5].cell(1,0),[
     'La interfaz usa listas perezosas y desplazamiento para evitar cargar todas las tarjetas de una vez y permitir el uso del teclado en pantallas pequeñas. Las llamadas de red se ejecutan en corrutinas; los botones muestran carga y evitan solicitudes repetidas. El tiempo máximo de espera de una operación interactiva es 20 segundos.',
     'Objetivos de rendimiento: respuesta inmediata de validaciones locales y filtros; navegación fluida; inicio y sincronización sujetos a red y al servicio remoto. Son objetivos de diseño, no mediciones de latencia de la aplicación en dispositivos físicos.',
     f'Pruebas JUnit ejecutadas: {total} casos, {failed} fallos o errores. La validación cubre correo, espacios, campos obligatorios, longitud de contraseña, confirmación, límite de 500 caracteres y categoría de frase. El filtrado comprueba mayúsculas, espacios, categoría, frecuencia y ausencia de coincidencias.',
-    integration_status])
+    integration_status,
+    'La comprobación manual del APK publicado se realizó en el emulador ComuniaPruebas con Firebase real. Las capturas muestran el inicio, la edición y el texto actualizado, además de los ajustes de accesibilidad. Se recibió el correo de recuperación y se confirmó el cambio de contraseña. El usuario también confirmó el ingreso con la nueva contraseña, la eliminación y la conservación de sesión y frases al reabrir. Los anexos 4 y 5 detallan resultados automáticos y manuales.'])
 
 cell_text(d.tables[6].cell(1,0),[
     'Tecnología: Android Studio, Kotlin 2.2.10, Android Gradle Plugin 9.3.2, Jetpack Compose y Material 3. Android mínimo API 26, compilación y objetivo API 37. Se conserva el identificador com.example.comuniaapp.',
     'Servicios: el registro, ingreso, recuperación y sincronización requieren Firebase configurado y conexión a internet. La caché de Firestore permite consultar frases previamente cargadas cuando se pierde la conexión. Los cambios se ejecutan con validación de red y mensajes visuales ante errores.',
-    'Seguridad: las reglas separan datos por UID, admiten únicamente los campos definidos y validan longitud y tipo. SharedPreferences no almacena contraseñas. La clave privada de firma se respalda localmente y queda fuera de Git y del ZIP de entrega.',
+    'Seguridad: las reglas separan datos por UID, admiten únicamente los campos definidos y validan longitud y tipo. SharedPreferences no almacena contraseñas. La clave privada de firma se conserva localmente y queda fuera de Git y del ZIP de entrega; debe respaldarse para futuras actualizaciones.',
     'Accesibilidad: la aplicación evita que una alerta acústica sea el único medio de retroalimentación. El texto grande y el contraste se mantienen entre sesiones. La voz depende de que el dispositivo tenga un motor TTS y datos de español disponibles.',
     firebase_status,
     'La validación en dispositivos físicos y con usuarios sigue pendiente. ' + publication_status])
@@ -165,11 +173,21 @@ for row in list(table.rows)[7:]: table._tbl.remove(row._tr)
 anchor=after_table(table,'Seguimiento de los cinco riesgos originales',True)
 tracking=[
     'R1 Compatibilidad: se conserva minSdk 26 y se verifica la compilación del proyecto. Resultado: mitigación técnica implementada; validación en múltiples versiones Android pendiente de la matriz de dispositivos.',
-    'R2 Legibilidad: el contraste se aplica desde el tema general y el tamaño de texto conserva la preferencia. Se eliminaron contenedores de altura fija en el listado de frases. Resultado: mejoras implementadas; evaluación con usuarios y dispositivos físicos pendiente.',
+    'R2 Legibilidad: el contraste se aplica desde el tema general y el tamaño de texto conserva la preferencia. Se eliminaron contenedores de altura fija en el listado de frases. Resultado: las capturas del emulador muestran el inicio con texto normal y con texto grande y contraste activados. La evaluación con usuarios con discapacidad auditiva y dispositivos físicos sigue pendiente.',
     f'R3 Registro: se incorporaron validaciones verificadas con JUnit y autenticación de Firebase. El riesgo original del arreglo evoluciona a consistencia entre cuenta y perfil. Resultado: {total} pruebas locales ejecutadas con {failed} fallos; el registro remoto se comprueba en las pruebas de integración.',
-    'R4 Conectividad: se valida la existencia de red antes de operaciones, se manejan excepciones y se aplica un tiempo de espera de 20 segundos. Firestore mantiene caché de lectura. Resultado: mitigación implementada; verificar interrupción y recuperación de red en dispositivo físico antes de publicar.',
+    'R4 Conectividad: se valida la existencia de red antes de operaciones, se manejan excepciones y se aplica un tiempo de espera de 20 segundos. Firestore mantiene caché de lectura. Resultado: mitigación implementada; la comprobación manual de interrupción y recuperación de red continúa pendiente. La publicación del APK ya fue realizada.',
     'R5 Rendimiento: se usa una sola LazyColumn para las frases y se eliminan listas perezosas anidadas con altura fija. Las consultas remotas no bloquean el hilo principal. Resultado: optimización implementada; mediciones de fluidez y consumo en gama baja todavía pendientes.']
 for text in tracking: anchor=after_p(anchor,text)
+# El salto de la plantilla no debe crear una página vacía cuando termina el seguimiento.
+separator=anchor._p.getnext()
+if separator is not None and separator.tag == qn('w:p'):
+    from docx.text.paragraph import Paragraph
+    break_p=Paragraph(separator,d._body)
+    for br in separator.xpath('.//w:br'): br.getparent().remove(br)
+    break_p.paragraph_format.page_break_before=True
+    break_p.paragraph_format.line_spacing=1
+    break_p.paragraph_format.space_after=Pt(0)
+    for run in break_p.runs: run.font.size=Pt(1)
 
 artifacts=[('Código fuente Kotlin','Proyecto Android, ViewModel, repositorios, modelos y pantallas Compose.'),('Configuración Firebase','Cliente Android y reglas Firestore para datos privados por UID.'),('Pruebas y evidencia','Resultados JUnit y pruebas instrumentadas de UI y backend.'),('APK de distribución','Paquete Android firmado y evidencia del certificado.'),('Documento técnico PDF','Formato de respuesta con alcance, mockups, views, restricciones, cinco riesgos y EDT.'),('Repositorio Git y ZIP','Historial de versiones y paquete de entrega con fuente, PDF, APK y evidencias.')]
 for i,(name,text) in enumerate(artifacts,2):
@@ -191,11 +209,99 @@ for p in d.paragraphs:
         edt=d.add_table(rows=1,cols=3); p._p.addnext(edt._tbl)
         edt.autofit=False
         for i,label in enumerate(['Código','Paquete de trabajo','Evidencia de aceptación']): cell_text(edt.rows[0].cells[i],[label])
-        records=[('1.1','Requisitos','Matriz de los nueve criterios de la pauta.'),('1.2','Informe y Git','Formato de respuesta completado e historial del proyecto.'),('2.1','Mockups','Ocho vistas y flujo de navegación documentados.'),('2.2','Accesibilidad','Texto y contraste persistentes; confirmaciones visuales.'),('3.1','Autenticación y sesión','Registro, ingreso, recuperación y SharedPreferences.'),('3.2','CRUD de frases','Creación, lectura, edición, frecuencia y eliminación por UID.'),('3.3','Interfaz y TTS','Mensajes escritos y lectura opcional con manejo de disponibilidad.'),('4.1','Pruebas','Resultados JUnit y casos instrumentados de UI y Firebase.'),('4.2','APK y firma','Compilación release y verificación del certificado.'),('4.3','Publicación','Plataforma seleccionada y enlace de descarga verificado.'),('4.4','PDF y ZIP','Informe PDF y paquete único con los entregables.')]
+        records=[('1.1','Requisitos','Matriz de los nueve criterios en el Anexo 6.'),('1.2','Informe y Git','Formato de respuesta completado e historial del proyecto.'),('2.1','Mockups','Nueve vistas y flujo de navegación documentados.'),('2.2','Accesibilidad','Texto y contraste persistentes; confirmaciones visuales.'),('3.1','Autenticación y sesión','Registro, ingreso, recuperación y SharedPreferences.'),('3.2','CRUD de frases','Creación, lectura, edición, frecuencia y eliminación por UID.'),('3.3','Interfaz y TTS','Mensajes escritos y lectura opcional con manejo de disponibilidad.'),('4.1','Pruebas','Resultados JUnit y casos instrumentados de UI y Firebase.'),('4.2','APK y firma','Compilación release y verificación del certificado.'),('4.3','Publicación','Plataforma seleccionada y enlace de descarga verificado.'),('4.4','PDF y ZIP','Informe PDF y paquete único con los entregables.')]
         for record in records:
             for cell,text in zip(edt.add_row().cells,record): cell_text(cell,[text])
         for row in edt.rows:
             for cell,width in zip(row.cells,[0.8,1.9,3.65]): cell.width=Inches(width)
+
+def annex_heading(anchor, text):
+    p=after_p(anchor,text,True)
+    p.paragraph_format.page_break_before=True
+    p.paragraph_format.keep_with_next=True
+    return p
+
+def annex_table(anchor, headers, records, widths):
+    table=d.add_table(rows=1,cols=len(headers)); anchor._p.addnext(table._tbl)
+    table.autofit=False
+    for cell,text in zip(table.rows[0].cells,headers): cell_text(cell,[text])
+    for record in records:
+        for cell,text in zip(table.add_row().cells,record): cell_text(cell,[text])
+    for row in table.rows:
+        cant_split=OxmlElement('w:cantSplit'); row._tr.get_or_add_trPr().append(cant_split)
+        for cell,width in zip(row.cells,widths): cell.width=Inches(width)
+    return table
+
+anchor=after_table(edt,'Anexo 3 Implementación del código',True)
+anchor.paragraph_format.page_break_before=True
+anchor.paragraph_format.keep_with_next=True
+code_sections=[
+    ('Pantallas y estado', 'MainActivity.kt define los nueve destinos y conecta las acciones de las pantallas Compose con ComuniaViewModel. El destino de acceso cambia a Inicio cuando existe un perfil autenticado. Panel e Historial reutilizan PanelAccesibilidadScreen, con títulos distintos. El ViewModel mantiene usuario, frases, carga y mensajes; las corrutinas realizan las operaciones sin bloquear la interfaz.'),
+    ('Autenticación y recuperación', 'data/AuthRepository.kt utiliza createUserWithEmailAndPassword para el registro y signInWithEmailAndPassword para el ingreso. Guarda el perfil en usuarios/{uid} y actualiza el nombre visible en Firebase Authentication. Si falla la creación del perfil, intenta eliminar la cuenta recién creada. recuperar llama a sendPasswordResetEmail; salir cierra Firebase y limpia los datos básicos locales.'),
+    ('Sesión y preferencias', 'data/SessionStore.kt guarda UID, nombre, apellido, alias y correo en comunia_sesion. leer devuelve el perfil solo cuando el UID guardado coincide con la identidad autenticada. Al iniciar, el ViewModel restaura ese perfil y después lo actualiza desde Firebase. MainActivity conserva por separado textoGrande y contraste en comunia_accesibilidad.'),
+    ('Persistencia y CRUD', 'data/ComunicacionRepository.kt trabaja sobre usuarios/{uid}/frases. guardar crea un documento con set o edita uno existente con update; observar usa addSnapshotListener para consultar cambios; frecuencia modifica esFrecuente y eliminar ejecuta delete. El registro agrega ocho frases iniciales mediante un lote. Cada operación comprueba que el UID de la sesión siga siendo el propietario.'),
+    ('Validaciones y errores', 'domain/Validacion.kt normaliza correos y verifica campos, contraseña, confirmación, categoría y longitud de frase. domain/Frases.kt combina búsqueda, categoría y frecuencia. ComuniaViewModel comprueba la red antes de las acciones y limita la espera a 20 segundos. Las excepciones se convierten en mensajes visuales; el indicador de carga evita envíos duplicados.'),
+    ('Reglas y entorno', 'firestore.rules permite acceder únicamente a usuarios/{uid} y sus frases cuando request.auth.uid coincide con uid. Valida campos, tipos, longitudes y categorías. data/FirebaseBackend.kt utiliza el proyecto real en release y un proyecto local de pruebas solo cuando la variante debug habilita firebaseEmulators. La compilación publicada conserva FIREBASE_EMULATORS=false.')]
+for title,text in code_sections:
+    anchor=after_p(anchor,title,True); anchor.paragraph_format.keep_with_next=True
+    anchor=after_p(anchor,text)
+
+anchor=annex_heading(anchor,'Anexo 4 Resultados de las pruebas automáticas')
+anchor=after_p(anchor,'Se ejecutaron 11 casos unitarios y 5 instrumentados: 16 aprobados, 0 fallos, 0 errores y 0 omitidos. Los XML y el informe de lint se adjuntan en Evidencias del ZIP. Las comprobaciones de backend de esta tabla utilizan Firebase Emulator Suite local.')
+test_records=[
+    ('Registro válido\n1 caso', 'Aceptar campos válidos sin mensaje de error.', 'Aprobado en ValidacionTest.'),
+    ('Campos y correo\n2 casos', 'Rechazar campos vacíos y formatos de correo inválidos.', 'Ambos aprobados en ValidacionTest.'),
+    ('Normalización\n1 caso', 'Recortar espacios y convertir el correo a minúsculas.', 'Aprobado en ValidacionTest.'),
+    ('Contraseñas\n1 caso', 'Rechazar una clave corta y una confirmación distinta.', 'Aprobado en ValidacionTest.'),
+    ('Texto y categoría\n1 caso', 'Rechazar texto vacío, 501 caracteres o categoría inválida; aceptar 500 caracteres.', 'Aprobado en ValidacionTest.'),
+    ('Filtros\n4 casos', 'Combinar consulta, mayúsculas, espacios, categoría y frecuencia; devolver lista vacía sin coincidencias.', 'Los cuatro aprobados en FrasesTest.'),
+    ('Prueba inicial\n1 caso', 'Comprobar la aserción aritmética de la prueba de ejemplo.', 'Aprobado en ExampleUnitTest.'),
+    ('Firebase\n1 caso', 'Registrar, guardar perfil, restaurar acceso, crear, leer, editar y eliminar; rechazar el acceso de otra cuenta.', 'Aprobado en FirebaseCrudTest. El documento ajeno devuelve PERMISSION_DENIED.'),
+    ('Formulario Compose\n3 casos', 'Enviar valores, bloquear envío durante carga y ejecutar callbacks de registro y recuperación.', 'Los tres aprobados en LoginScreenTest.'),
+    ('Contexto Android\n1 caso', 'Comprobar el identificador com.example.comuniaapp.', 'Aprobado en ExampleInstrumentedTest.')]
+table=annex_table(anchor,['Prueba','Resultado esperado','Resultado obtenido'],test_records,[1.45,2.7,2.2])
+anchor=after_table(table,'Las clases de prueba se encuentran en app/src/test y app/src/androidTest. Lint finalizó con 0 errores; las advertencias de mantenimiento y estilo permanecen registradas. La firma del APK se verificó con apksigner, con firma v2 válida y certificado RSA de 3072 bits.')
+anchor=after_p(anchor,'Se corrigieron dos fallos de la primera ejecución instrumentada: el permiso de red local de Android 17 para Firebase Emulator Suite y el selector del campo editable de contraseña. La ejecución posterior aprobó los cinco casos instrumentados.')
+
+anchor=annex_heading(anchor,'Anexo 5 Validación manual del APK publicado')
+anchor=after_p(anchor,'Bastian Ortiz probó el APK 1.0 publicado en el emulador ComuniaPruebas, Android 17, conectado al proyecto Firebase real comunicapp-5661e. Estas comprobaciones son adicionales a los casos automáticos. Las capturas fueron aportadas por el usuario el 05-10-2026; los resultados sin imagen se identifican como confirmaciones del usuario.')
+manual_records=[
+    ('Acceso e Inicio','Mostrar el menú de la cuenta activa.','Captura U1: se muestra Inicio con el saludo de la cuenta.'),
+    ('Edición de frase','Guardar el texto modificado y mostrarlo en el listado.','Capturas U2 y U3: formulario de edición y frase actualizada.'),
+    ('Accesibilidad','Cambiar el tamaño de texto y el contraste del tema.','Capturas U1 y U4: vista normal y ajustes activados.'),
+    ('Recuperación','Recibir el correo y completar el cambio de contraseña.','Correo recibido visible en la captura aportada; cambio confirmado por el usuario.'),
+    ('Ingreso posterior','Acceder con la contraseña nueva.','Confirmado por el usuario.'),
+    ('Eliminación','Retirar del listado la frase seleccionada.','Confirmado por el usuario.'),
+    ('Restauración','Conservar sesión y frases al cerrar y reabrir.','Confirmado por el usuario.')]
+table=annex_table(anchor,['Comprobación','Resultado esperado','Resultado obtenido'],manual_records,[1.45,2.2,2.7])
+anchor=after_table(table,'Continúan pendientes la interrupción y recuperación de red, la matriz de versiones Android y las mediciones en equipos de gama baja. La revisión de accesibilidad se limita al emulador y no representa una evaluación con personas con discapacidad auditiva.')
+
+user_dir=QA/'evidencias-usuario'
+figures=[('U1 Inicio con ajustes normales','U1-inicio.png',3.0),
+         ('U2 Edición de una frase','U2-edicion.png',2.55),
+         ('U3 Frase después de guardar cambios','U3-frase-actualizada.png',4.5),
+         ('U4 Inicio con texto grande y contraste activados','U4-accesibilidad.png',3.0)]
+for index,(title,name,width) in enumerate(figures):
+    path=user_dir/name
+    if not path.is_file(): continue
+    anchor=after_p(anchor,title,True)
+    anchor.paragraph_format.keep_with_next=True
+    if index in (0,1,3): anchor.paragraph_format.page_break_before=True
+    anchor=after_p(anchor,''); anchor.add_run().add_picture(str(path),width=Inches(width))
+anchor=after_p(anchor,'La recepción del correo se comprobó en la captura aportada. El mensaje contiene el enlace personal de recuperación; el informe registra el resultado sin reproducir ese enlace ni el código de la acción.')
+
+anchor=annex_heading(anchor,'Anexo 6 Correspondencia con la pauta')
+criteria=[
+    ('1','Kotlin y Compose','Alcance, nueve mockups y Anexo 3; fuente Android en el ZIP.'),
+    ('2','Persistencia','Firestore por cuenta y ComunicacionRepository; prueba de Firebase del Anexo 4.'),
+    ('3','Acceso y sesión','AuthRepository, SessionStore y comprobación manual de restauración del Anexo 5.'),
+    ('4','CRUD','Panel e Historial, prueba automática y capturas de edición; eliminación confirmada.'),
+    ('5','Pruebas','JUnit y pruebas instrumentadas ejecutadas; 16 casos aprobados y XML adjuntos.'),
+    ('6','APK','ComunicaApp-1.0.apk incluido y publicado.'),
+    ('7','Firma','Verificación apksigner de firma v2 y certificado RSA.'),
+    ('8','Git','Repositorio público, rama codex/semana8 y tag v1.0.0 del APK.'),
+    ('9','Documentación','Vistas, código, pruebas, resultados, restricciones, cinco riesgos, EDT y publicación.')]
+annex_table(anchor,['Criterio','Contenido','Evidencia'],criteria,[0.8,1.8,3.75])
 
 # La cabecera de continuación identifica las columnas, sin repetir instrucciones extensas.
 risk_table=d.tables[8]
@@ -223,6 +329,9 @@ for table in d.tables[1:]:
         for p in cell.paragraphs:
             p.paragraph_format.keep_with_next=True
             for run in p.runs: run.font.bold=True
+
+for p in d.tables[4].cell(1,0).paragraphs:
+    if p.text == 'Historial de frases': p.paragraph_format.keep_with_next=True
 
 d.core_properties.title='Desarrollo y distribución de ComunicaApp'
 d.core_properties.author='Bastian Ortiz'

@@ -29,4 +29,10 @@ Se corrigieron dos fallos de la primera ejecución instrumentada: permiso de acc
 
 Las evidencias XML de JUnit, resultados instrumentados y reporte HTML de lint se incluyen en el ZIP. Para repetir pruebas desde Android Studio se puede usar el build normal en `app/build`; la carpeta temporal en D utilizada durante esta sesión fue una solución al espacio disponible en C.
 
-Validaciones adicionales: versiones Android anteriores, equipos físicos de gama baja, accesibilidad con usuarios, interrupción y recuperación de conectividad y recepción real del correo de recuperación. El código permite estas pruebas; no se han inventado resultados.
+## Validación manual del APK publicado con Firebase real
+
+El 05-10-2026 el autor aportó cuatro capturas de la app ejecutada en ComuniaPruebas, Android 17: Inicio, edición de una frase, texto actualizado y ajustes de tamaño y contraste. También aportó una captura del correo real de recuperación y confirmó que cambió la contraseña. En respuesta posterior confirmó el ingreso con la contraseña nueva, la eliminación de una frase y la conservación de sesión y frases al cerrar y reabrir la app.
+
+Estas comprobaciones usan el APK release publicado y el proyecto Firebase real; se distinguen de los 16 casos automáticos anteriores. Los resultados sin captura se registran como confirmación del usuario. Las capturas de la app y un registro JSON se incluyen en el ZIP académico, junto con el informe ampliado. El enlace personal del correo de recuperación no se incorpora al paquete ni a Git.
+
+Validaciones adicionales: versiones Android anteriores, equipos físicos de gama baja, accesibilidad con personas con discapacidad auditiva e interrupción y recuperación de conectividad. No se presentan mediciones o pruebas aún no realizadas como resultados aprobados.

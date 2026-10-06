@@ -14,7 +14,7 @@ Objetivo: continuar la aplicación de accesibilidad existente y cubrir los nueve
 
 ## Dependencias externas
 
-Firebase real comunicapp-5661e está configurado y sus reglas están publicadas. El usuario seleccionó GitHub Releases y autorizó publicar código y APK. Las pruebas de integración se ejecutaron con los emuladores locales de Firebase; las pruebas físicas y la recepción del correo de recuperación continúan pendientes y se declaran en el informe.
+Firebase real comunicapp-5661e está configurado y sus reglas están publicadas. El usuario seleccionó GitHub Releases y autorizó publicar código y APK. Las pruebas automáticas de integración se ejecutaron con los emuladores locales de Firebase. El usuario aportó capturas del APK publicado, ejecutado en un emulador Android con Firebase real, y confirmó el cambio de contraseña, el ingreso posterior, la eliminación y la conservación de sesión y frases al reabrir. El informe añade la explicación del código, resultados detallados, el mockup de Historial y la evidencia manual. Las pruebas de pérdida de red, versiones anteriores, rendimiento en gama baja y evaluación con usuarios con discapacidad auditiva siguen como validaciones adicionales.
 
 ## Casos que deben comprobarse
 

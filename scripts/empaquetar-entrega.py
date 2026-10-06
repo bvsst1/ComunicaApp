@@ -45,6 +45,10 @@ with zipfile.ZipFile(destination, 'w', zipfile.ZIP_DEFLATED) as archive:
         path = build / 'reports' / name
         if path.is_file(): archive.write(path, 'Evidencias/' + name)
     archive.write(ROOT / 'docs' / 'verificacion-semana-8.md', 'Evidencias/Verificacion.md')
+    for path in sorted((QA / 'evidencias-usuario').glob('U*.png')):
+        archive.write(path, 'Evidencias/Usuario/' + path.name)
+    manual = QA / 'verificacion-usuario.json'
+    if manual.is_file(): archive.write(manual, 'Evidencias/Usuario/Resultados.json')
 
 with zipfile.ZipFile(destination) as archive:
     if archive.testzip() is not None: raise ValueError('El ZIP contiene un archivo corrupto')

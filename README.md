@@ -50,7 +50,7 @@ Validación de semana 8: 11 pruebas unitarias y 5 instrumentadas aprobadas en An
 
 La clave de distribución y sus contraseñas quedan en archivos locales ignorados por Git. Hay que respaldarlos para actualizar la aplicación con la misma firma. El APK se genera en `app/build/outputs/apk/release`.
 
-Distribución: GitHub Releases del repositorio [ComunicaApp](https://github.com/bvsst1/ComunicaApp/releases). La clave de firma se verificó con apksigner y permanece local. El ZIP de entrega reúne código, informe PDF, APK y evidencia; no contiene claves privadas ni cachés. Quedan como validación adicional las pruebas en dispositivos físicos, la entrega efectiva de correos de recuperación y la evaluación con usuarios.
+Distribución: GitHub Releases del repositorio [ComunicaApp](https://github.com/bvsst1/ComunicaApp/releases). La clave de firma se verificó con apksigner y permanece local. El ZIP de entrega reúne código, informe PDF, APK y evidencia; no contiene claves privadas ni cachés. El autor comprobó en el emulador el APK publicado con Firebase real: edición, accesibilidad, correo de recuperación, cambio de contraseña, ingreso posterior, eliminación y restauración de sesión y frases. Quedan como validación adicional versiones Android anteriores, interrupción de conectividad, mediciones en equipos de gama baja y evaluación con usuarios con discapacidad auditiva.
 
 ## Referencias técnicas
 
