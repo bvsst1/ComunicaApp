@@ -4,18 +4,19 @@ Objetivo: continuar la aplicación de accesibilidad existente y cubrir los nueve
 
 ## Implementación y verificación
 
-- [ ] Integrar Firebase Authentication y Firestore sin almacenar contraseñas en la aplicación. Gestionar sesión con SharedPreferences y validar la sesión con Firebase.
-- [ ] Mantener Login, Registro, Recuperación, Home, Panel de accesibilidad, Avisos, Recomendaciones y consulta del perfil propio. Agregar consulta, creación, edición y eliminación de frases por cuenta.
-- [ ] Mantener categorías, búsqueda, frecuentes, tamaño de texto y contraste. Usar mensajes visuales, diseños desplazables y lectura opcional de frases con TTS.
-- [ ] Probar validaciones, filtrado, aislamiento de datos y CRUD con JUnit y pruebas instrumentadas donde exista un dispositivo disponible.
-- [ ] Compilar, configurar firma de distribución sin incluir claves en Git y verificar el certificado del APK.
-- [ ] Completar una copia del formato Word con los datos y los cinco riesgos recuperados de las entregas anteriores. Exportar a PDF y revisar las páginas.
-- [ ] Empaquetar código fuente, informe PDF, APK y resultados verificables en un solo ZIP.
+- [x] Integrar Firebase Authentication y Firestore sin almacenar contraseñas en la aplicación. Gestionar sesión con SharedPreferences y validar la sesión con Firebase.
+- [x] Mantener Login, Registro, Recuperación, Home, Panel de accesibilidad, Avisos, Recomendaciones y consulta del perfil propio. Agregar consulta, creación, edición y eliminación de frases por cuenta.
+- [x] Mantener categorías, búsqueda, frecuentes, tamaño de texto y contraste. Usar mensajes visuales, diseños desplazables y lectura opcional de frases con TTS.
+- [x] Probar validaciones, filtrado, aislamiento de datos y CRUD con JUnit y pruebas instrumentadas donde exista un dispositivo disponible.
+- [x] Compilar, configurar firma de distribución sin incluir claves en Git y verificar el certificado del APK.
+- [x] Completar una copia del formato Word con los datos y los cinco riesgos recuperados de las entregas anteriores. Exportar a PDF y revisar las páginas.
+- [x] Empaquetar código fuente, informe PDF, APK y resultados verificables en un solo ZIP.
 
 ## Dependencias externas
 
-El archivo google-services.json, la habilitación de Authentication y Firestore y la plataforma de publicación deben corresponder al proyecto real del estudiante. La integración puede prepararse y probarse con los emuladores locales de Firebase mientras se reciben esos datos. La publicación y las pruebas en dispositivos físicos deben registrarse según la evidencia real.
+Firebase real comunicapp-5661e está configurado y sus reglas están publicadas. El usuario seleccionó GitHub Releases y autorizó publicar código y APK. Las pruebas de integración se ejecutaron con los emuladores locales de Firebase; las pruebas físicas y la recepción del correo de recuperación continúan pendientes y se declaran en el informe.
 
 ## Casos que deben comprobarse
 
 Campos vacíos y correo inválido; contraseñas distintas o débiles; pérdida de conectividad; cierre y restauración de sesión; frases vacías o demasiado largas; actualización y eliminación del elemento correcto; separación de datos entre cuentas; navegación atrás y uso en pantallas pequeñas.
+

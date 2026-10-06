@@ -30,6 +30,7 @@ firebase_status = evidence.get('firebase', 'Cliente Android registrado en comuni
 apk_status = evidence.get('apk', 'Compilación de distribución en verificación.')
 integration_status = evidence.get('integracion', 'Pruebas instrumentadas de Firebase y de interfaz preparadas; ejecución pendiente.')
 publication_status = evidence.get('publicacion', 'Publicación prevista en GitHub Releases; el enlace de descarga se incorporará al completar la publicación.')
+revision_status = evidence.get('revision', 'Código actualizado en la rama codex/semana8 del repositorio https://github.com/bvsst1/ComunicaApp.')
 
 FONT = Path(r'C:\Windows\Fonts\arial.ttf')
 BOLD = Path(r'C:\Windows\Fonts\arialbd.ttf')
@@ -138,8 +139,7 @@ cell_text(d.tables[5].cell(1,0),[
     'La interfaz usa listas perezosas y desplazamiento para evitar cargar todas las tarjetas de una vez y permitir el uso del teclado en pantallas pequeñas. Las llamadas de red se ejecutan en corrutinas; los botones muestran carga y evitan solicitudes repetidas. El tiempo máximo de espera de una operación interactiva es 20 segundos.',
     'Objetivos de rendimiento: respuesta inmediata de validaciones locales y filtros; navegación fluida; inicio y sincronización sujetos a red y al servicio remoto. Son objetivos de diseño, no mediciones de latencia de la aplicación en dispositivos físicos.',
     f'Pruebas JUnit ejecutadas: {total} casos, {failed} fallos o errores. La validación cubre correo, espacios, campos obligatorios, longitud de contraseña, confirmación, límite de 500 caracteres y categoría de frase. El filtrado comprueba mayúsculas, espacios, categoría, frecuencia y ausencia de coincidencias.',
-    integration_status,
-    'Las pruebas unitarias verifican lógica de negocio. Las pruebas instrumentadas amplían la cobertura a entrada de formulario, botones durante carga, navegación a registro y recuperación, sesión, CRUD y denegación del acceso de una segunda cuenta.'])
+    integration_status])
 
 cell_text(d.tables[6].cell(1,0),[
     'Tecnología: Android Studio, Kotlin 2.2.10, Android Gradle Plugin 9.3.2, Jetpack Compose y Material 3. Android mínimo API 26, compilación y objetivo API 37. Se conserva el identificador com.example.comuniaapp.',
@@ -181,7 +181,7 @@ cell_text(d.tables[10].cell(1,0),[
     apk_status,
     'Proceso de distribución: generar la clave RSA, configurar la firma local de release, ejecutar assembleRelease, verificar el APK con apksigner y adjuntar el paquete al ZIP. La clave se conserva para futuras actualizaciones y no se publica.',
     publication_status + ' La entrega por AVA requiere adjuntar el ZIP y comprobar su recepción dentro del plazo de la asignatura.',
-    'Repositorio del proyecto: https://github.com/bvsst1/ComunicaApp. El código actualizado se incluye en el ZIP; la sincronización remota debe corresponder a la revisión que se entregue.'])
+    revision_status + ' El código actualizado también se incluye en el ZIP de entrega.'])
 
 for p in d.paragraphs:
     if p.text.startswith('Anexo 1:'):
@@ -200,7 +200,11 @@ for p in d.paragraphs:
 # La cabecera de continuación identifica las columnas, sin repetir instrucciones extensas.
 risk_table=d.tables[8]
 for p in risk_table.rows[0].cells[0].paragraphs:
-    if p.text.strip(): risk_table._tbl.addprevious(deepcopy(p._p))
+    if p.text.strip():
+        from docx.text.paragraph import Paragraph
+        el=deepcopy(p._p); risk_table._tbl.addprevious(el)
+        intro=Paragraph(el,d._body); intro.style='Normal'; format_p(intro)
+        for shade in intro._p.xpath('./w:pPr/w:shd'): shade.getparent().remove(shade)
 risk_table._tbl.remove(risk_table.rows[0]._tr)
 
 # Respuestas con párrafos legibles; no se conservan las grandes alturas de campos vacíos.
