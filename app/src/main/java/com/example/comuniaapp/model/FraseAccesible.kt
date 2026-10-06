@@ -1,7 +1,7 @@
 package com.example.comuniaapp.model
 
 data class FraseAccesible(
-    val id: Int,
+    val id: String,
     val categoria: String,
     val texto: String,
     val esFrecuente: Boolean

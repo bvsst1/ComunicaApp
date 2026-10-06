@@ -1,343 +1,144 @@
 package com.example.comuniaapp.ui.screens
 
-import androidx.compose.foundation.ExperimentalFoundationApi
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
+import android.speech.tts.TextToSpeech
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.ClickableText
-import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.Checkbox
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.RadioButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
-import androidx.compose.ui.text.AnnotatedString
-import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import com.example.comuniaapp.data.ComunicacionRepository
+import com.example.comuniaapp.domain.Frases
+import com.example.comuniaapp.domain.Validacion
 import com.example.comuniaapp.model.FraseAccesible
-import kotlinx.coroutines.launch
+import java.util.Locale
 
-private enum class TamanoFuente(val etiqueta: String, val escala: Float) {
-    Normal("Normal", 1f),
-    Grande("Grande", 1.25f)
-}
-
-@OptIn(ExperimentalMaterial3Api::class, ExperimentalFoundationApi::class)
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun PanelAccesibilidadScreen(
-    onVolver: () -> Unit,
-    repository: ComunicacionRepository = remember { ComunicacionRepository() }
-) {
+fun PanelAccesibilidadScreen(frases: List<FraseAccesible>, cargando: Boolean, titulo: String, onVolver: () -> Unit,
+                            onGuardar: (String, String, Boolean, String?, () -> Unit) -> Unit,
+                            onFrecuencia: (String, Boolean) -> Unit, onEliminar: (String) -> Unit) {
     var entrada by rememberSaveable { mutableStateOf("") }
+    var consulta by rememberSaveable { mutableStateOf("") }
     var categoria by rememberSaveable { mutableStateOf("Todas") }
-    var menuAbierto by remember { mutableStateOf(false) }
-    var soloFrecuentes by rememberSaveable { mutableStateOf(false) }
-    var tamanoFuente by rememberSaveable { mutableStateOf(TamanoFuente.Normal.name) }
-    var mostrarAyuda by remember { mutableStateOf(false) }
-    val snackbarHostState = remember { SnackbarHostState() }
-    val scope = rememberCoroutineScope()
-    val fuente = TamanoFuente.valueOf(tamanoFuente)
-    val frases = repository.buscarFrases(entrada, categoria, soloFrecuentes)
-
-    if (mostrarAyuda) {
-        AlertDialog(
-            onDismissRequest = { mostrarAyuda = false },
-            title = { Text("Asistencia auditiva") },
-            text = {
-                Text(
-                    "Puedes solicitar que la información se escriba, usar audífonos o pedir apoyo a una persona de confianza. " +
-                        "ComunicaApp facilita el intercambio visual de mensajes."
-                )
-            },
-            confirmButton = {
-                Button(onClick = { mostrarAyuda = false }) { Text("Entendido") }
-            }
-        )
+    var frecuentes by rememberSaveable { mutableStateOf(false) }
+    var fuenteGrande by rememberSaveable { mutableStateOf(false) }
+    var ayuda by remember { mutableStateOf(false) }
+    var seleccion by remember { mutableStateOf<FraseAccesible?>(null) }
+    var editar by remember { mutableStateOf<FraseAccesible?>(null) }
+    var eliminar by remember { mutableStateOf<FraseAccesible?>(null) }
+    var ttsListo by remember { mutableStateOf(false) }
+    var avisoVoz by remember { mutableStateOf<String?>(null) }
+    val contexto = LocalContext.current
+    val tts = remember { TextToSpeech(contexto) { ttsListo = it == TextToSpeech.SUCCESS } }
+    LaunchedEffect(ttsListo) {
+        if (ttsListo) {
+            val resultado = tts.setLanguage(Locale.forLanguageTag("es-CL"))
+            ttsListo = resultado != TextToSpeech.LANG_MISSING_DATA && resultado != TextToSpeech.LANG_NOT_SUPPORTED
+        }
     }
-
-    Scaffold(
-        topBar = {
-            TopAppBar(
-                title = { Text("Panel de accesibilidad", fontSize = 22.sp * fuente.escala) },
-                navigationIcon = {
-                    OutlinedButton(onClick = onVolver, modifier = Modifier.padding(start = 8.dp)) {
-                        Text("Volver", fontSize = 14.sp * fuente.escala)
-                    }
-                }
-            )
-        },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
-    ) { padding ->
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 16.dp),
-            verticalArrangement = Arrangement.spacedBy(12.dp)
-        ) {
+    DisposableEffect(tts) { onDispose { tts.stop(); tts.shutdown() } }
+    fun hablar(texto: String) {
+        avisoVoz = if (ttsListo && tts.speak(texto, TextToSpeech.QUEUE_FLUSH, null, "frase") == TextToSpeech.SUCCESS) null
+        else "La voz en español no está disponible en este dispositivo. Puedes mostrar el mensaje en pantalla."
+    }
+    val filtradas = Frases.filtrar(frases, consulta, categoria, frecuentes)
+    if (ayuda) AlertDialog(onDismissRequest = { ayuda = false }, title = { Text("Asistencia auditiva") },
+        text = { Text("Puedes pedir que la información se escriba, mostrar una frase grande o leerla en voz alta con el botón Hablar. Todas las confirmaciones de la app son visuales.") },
+        confirmButton = { TextButton(onClick = { ayuda = false }) { Text("Entendido") } })
+    seleccion?.let { frase ->
+        AlertDialog(onDismissRequest = { seleccion = null; tts.stop() }, title = { Text("Mensaje para comunicar") },
+            text = { Column { Text(frase.texto, fontSize = 26.sp); avisoVoz?.let { Text(it) } } },
+            confirmButton = { Button(onClick = { hablar(frase.texto) }) { Text("Hablar") } },
+            dismissButton = { TextButton(onClick = { seleccion = null; tts.stop() }) { Text("Cerrar") } })
+    }
+    editar?.let { frase ->
+        EditorFrase(frase, cargando, onCancelar = { editar = null }) { texto, contextoFrase ->
+            onGuardar(texto, contextoFrase, frase.esFrecuente, frase.id) { editar = null }
+        }
+    }
+    eliminar?.let { frase ->
+        AlertDialog(onDismissRequest = { eliminar = null }, title = { Text("Eliminar frase") },
+            text = { Text("¿Quieres eliminar «${frase.texto}»?") },
+            confirmButton = { Button(enabled = !cargando, onClick = { onEliminar(frase.id); eliminar = null }) { Text("Eliminar") } },
+            dismissButton = { TextButton(onClick = { eliminar = null }) { Text("Cancelar") } })
+    }
+    Scaffold(topBar = { TopAppBar(title = { Text(titulo, fontSize = 18.sp) }, navigationIcon = {
+        TextButton(onClick = onVolver) { Text("Volver") }
+    }) }) { padding ->
+        LazyColumn(Modifier.fillMaxSize().padding(padding).imePadding().padding(horizontal = 16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp)) {
+            item { Text("Escribe una frase para comunicarte", style = MaterialTheme.typography.titleMedium) }
+            item { OutlinedTextField(entrada, { entrada = it }, Modifier.fillMaxWidth().testTag("textoFrase"),
+                label = { Text("Nueva frase") }, minLines = 2, supportingText = { Text("${entrada.length}/500 caracteres") }) }
+            item { Button(enabled = entrada.isNotBlank() && !cargando, modifier = Modifier.fillMaxWidth(), onClick = {
+                onGuardar(entrada, if (categoria == "Todas") "General" else categoria, false, null) { entrada = "" }
+            }) { Text("Agregar frase") } }
+            item { Text("Contexto de las frases", style = MaterialTheme.typography.titleMedium) }
             item {
-                Text(
-                    "Encuentra una frase o crea un mensaje nuevo",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontSize = 18.sp * fuente.escala,
-                    fontWeight = FontWeight.Bold
-                )
-            }
-            item {
-                OutlinedTextField(
-                    value = entrada,
-                    onValueChange = { entrada = it },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .semantics { contentDescription = "Buscar o escribir una frase" },
-                    label = { Text("Buscar o escribir nueva frase") },
-                    placeholder = { Text("Ej: Necesito ayuda") },
-                    singleLine = false,
-                    minLines = 2
-                )
-            }
-            item {
-                ExposedDropdownMenuBox(
-                    expanded = menuAbierto,
-                    onExpandedChange = { menuAbierto = !menuAbierto }
-                ) {
-                    OutlinedTextField(
-                        value = categoria,
-                        onValueChange = {},
-                        readOnly = true,
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .menuAnchor(),
-                        label = { Text("Contexto") },
-                        trailingIcon = {
-                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = menuAbierto)
-                        }
-                    )
-                    ExposedDropdownMenu(
-                        expanded = menuAbierto,
-                        onDismissRequest = { menuAbierto = false }
-                    ) {
-                        repository.categorias.forEach { opcion ->
-                            DropdownMenuItem(
-                                text = { Text(opcion) },
-                                onClick = {
-                                    categoria = opcion
-                                    menuAbierto = false
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    (listOf("Todas") + Validacion.categorias).chunked(2).forEach { opciones ->
+                        Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            opciones.forEach { opcion ->
+                                OutlinedButton(onClick = { categoria = opcion }, modifier = Modifier.weight(1f)) {
+                                    Text(if (categoria == opcion) "✓ $opcion" else opcion)
                                 }
-                            )
+                            }
                         }
                     }
                 }
             }
-            item {
-                Button(
-                    onClick = {
-                        val categoriaNueva = if (categoria == "Todas") "General" else categoria
-                        if (repository.agregarFrase(entrada, categoriaNueva)) {
-                            entrada = ""
-                            scope.launch { snackbarHostState.showSnackbar("Frase agregada") }
-                        } else {
-                            scope.launch { snackbarHostState.showSnackbar("Escribe una frase antes de agregarla") }
+            item { OutlinedTextField(consulta, { consulta = it }, Modifier.fillMaxWidth(), label = { Text("Buscar frase guardada") }, singleLine = true) }
+            item { Row(verticalAlignment = Alignment.CenterVertically) {
+                Checkbox(frecuentes, { frecuentes = it }); Text("Solo uso frecuente")
+            } }
+            item { Row(verticalAlignment = Alignment.CenterVertically) {
+                RadioButton(!fuenteGrande, { fuenteGrande = false }); Text("Normal")
+                RadioButton(fuenteGrande, { fuenteGrande = true }); Text("Grande")
+            } }
+            item { Text("Frases rápidas (${filtradas.size})", style = MaterialTheme.typography.titleMedium) }
+            if (filtradas.isEmpty()) item { Text("No hay frases para este filtro. Agrega una frase o cambia la búsqueda.") }
+            items(filtradas, key = { it.id }) { frase ->
+                Card(Modifier.fillMaxWidth()) {
+                    Column(Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                        Text(frase.categoria, style = MaterialTheme.typography.labelLarge)
+                        Text(frase.texto, fontSize = if (fuenteGrande) 22.sp else 18.sp)
+                        Row(verticalAlignment = Alignment.CenterVertically) {
+                            Checkbox(frase.esFrecuente, { onFrecuencia(frase.id, it) }, enabled = !cargando)
+                            Text("Uso frecuente")
                         }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(52.dp),
-                    enabled = entrada.isNotBlank()
-                ) {
-                    Text("Agregar frase", fontSize = 17.sp * fuente.escala)
-                }
-            }
-            item {
-                Text(
-                    "Selecciona una categoría",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontSize = 18.sp * fuente.escala
-                )
-            }
-            item {
-                LazyVerticalGrid(
-                    columns = GridCells.Fixed(2),
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(132.dp),
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                    verticalArrangement = Arrangement.spacedBy(8.dp),
-                    userScrollEnabled = false
-                ) {
-                    items(repository.categorias.drop(1)) { opcion ->
-                        CategoryButton(
-                            categoria = opcion,
-                            seleccionada = categoria == opcion,
-                            fuente = fuente,
-                            onClick = { categoria = opcion }
-                        )
-                    }
-                }
-            }
-            item {
-                Row(
-                    modifier = Modifier.fillMaxWidth(),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.SpaceBetween
-                ) {
-                    Text("Solo uso frecuente", fontSize = 17.sp * fuente.escala)
-                    Checkbox(
-                        checked = soloFrecuentes,
-                        onCheckedChange = { soloFrecuentes = it },
-                        modifier = Modifier.semantics {
-                            contentDescription = "Mostrar solo frases de uso frecuente"
-                        }
-                    )
-                }
-            }
-            item {
-                Text(
-                    "Frases rápidas (${frases.size})",
-                    style = MaterialTheme.typography.titleMedium,
-                    fontSize = 18.sp * fuente.escala
-                )
-            }
-            item {
-                Box(modifier = Modifier.fillMaxWidth().height(300.dp)) {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(frases, key = { it.id }) { frase ->
-                            FraseCard(
-                                frase = frase,
-                                fuente = fuente,
-                                onFrecuenciaChanged = { marcada ->
-                                    repository.actualizarFrecuencia(frase.id, marcada)
-                                }
-                            )
+                        OutlinedButton(onClick = { avisoVoz = null; seleccion = frase }, modifier = Modifier.fillMaxWidth()) { Text("Mostrar y hablar") }
+                        Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                            TextButton(enabled = !cargando, onClick = { editar = frase }) { Text("Editar") }
+                            TextButton(enabled = !cargando, onClick = { eliminar = frase }) { Text("Eliminar") }
                         }
                     }
                 }
             }
-            item {
-                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                    Text("Tamaño de fuente", fontSize = 17.sp * fuente.escala)
-                    TamanoFuente.values().forEach { opcion ->
-                        Row(
-                            modifier = Modifier
-                                .fillMaxWidth()
-                                .clickable { tamanoFuente = opcion.name }
-                                .padding(vertical = 2.dp),
-                            verticalAlignment = Alignment.CenterVertically
-                        ) {
-                            RadioButton(
-                                selected = tamanoFuente == opcion.name,
-                                onClick = { tamanoFuente = opcion.name }
-                            )
-                            Text(opcion.etiqueta, fontSize = 16.sp * fuente.escala)
-                        }
-                    }
-                }
-            }
-            item {
-                ClickableText(
-                    text = AnnotatedString("Información sobre asistencia auditiva"),
-                    onClick = { mostrarAyuda = true },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(vertical = 8.dp)
-                        .semantics { contentDescription = "Abrir información de asistencia auditiva" },
-                    style = MaterialTheme.typography.bodyLarge.copy(
-                        color = MaterialTheme.colorScheme.primary,
-                        fontSize = 16.sp * fuente.escala
-                    )
-                )
-            }
-            item { Spacer(modifier = Modifier.size(8.dp)) }
+            item { TextButton(onClick = { ayuda = true }) { Text("Información sobre asistencia auditiva") } }
+            item { Spacer(Modifier.height(16.dp)) }
         }
     }
 }
 
 @Composable
-private fun CategoryButton(
-    categoria: String,
-    seleccionada: Boolean,
-    fuente: TamanoFuente,
-    onClick: () -> Unit
-) {
-    if (seleccionada) {
-        Button(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
-            Text(categoria, fontSize = 15.sp * fuente.escala)
-        }
-    } else {
-        OutlinedButton(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
-            Text(categoria, fontSize = 15.sp * fuente.escala)
-        }
-    }
-}
-
-@Composable
-private fun FraseCard(
-    frase: FraseAccesible,
-    fuente: TamanoFuente,
-    onFrecuenciaChanged: (Boolean) -> Unit
-) {
-    Card(modifier = Modifier.fillMaxWidth()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 12.dp, vertical = 8.dp),
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    frase.categoria,
-                    style = MaterialTheme.typography.labelMedium,
-                    color = MaterialTheme.colorScheme.primary
-                )
-                Text(frase.texto, fontSize = 17.sp * fuente.escala)
-            }
-            Checkbox(
-                checked = frase.esFrecuente,
-                onCheckedChange = onFrecuenciaChanged,
-                modifier = Modifier.semantics {
-                    contentDescription = "Marcar frase como de uso frecuente"
+private fun EditorFrase(frase: FraseAccesible, cargando: Boolean, onCancelar: () -> Unit, onGuardar: (String, String) -> Unit) {
+    var texto by rememberSaveable(frase.id) { mutableStateOf(frase.texto) }
+    var contexto by rememberSaveable(frase.id) { mutableStateOf(frase.categoria) }
+    AlertDialog(onDismissRequest = onCancelar, title = { Text("Editar frase") }, text = {
+        Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            OutlinedTextField(texto, { texto = it }, label = { Text("Texto de la frase") }, modifier = Modifier.fillMaxWidth())
+            Validacion.categorias.forEach { opcion ->
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    RadioButton(contexto == opcion, { contexto = opcion }); Text(opcion)
                 }
-            )
+            }
         }
-    }
+    }, confirmButton = { Button(enabled = !cargando, onClick = { onGuardar(texto, contexto) }) { Text("Guardar cambios") } },
+        dismissButton = { TextButton(onClick = onCancelar) { Text("Cancelar") } })
 }

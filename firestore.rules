@@ -1,0 +1,26 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function propietario(uid) { return request.auth != null && request.auth.uid == uid; }
+    match /usuarios/{uid} {
+      allow read: if propietario(uid);
+      allow create, update: if propietario(uid)
+        && request.resource.data.keys().hasOnly(['nombre', 'apellido', 'usuario', 'correo'])
+        && request.resource.data.keys().hasAll(['nombre', 'apellido', 'usuario', 'correo'])
+        && request.resource.data.nombre is string && request.resource.data.nombre.size() > 0 && request.resource.data.nombre.size() <= 80
+        && request.resource.data.apellido is string && request.resource.data.apellido.size() > 0 && request.resource.data.apellido.size() <= 80
+        && request.resource.data.usuario is string && request.resource.data.usuario.size() > 0 && request.resource.data.usuario.size() <= 80
+        && request.resource.data.correo == request.auth.token.email;
+      match /frases/{id} {
+        allow read, delete: if propietario(uid);
+        allow create, update: if propietario(uid)
+          && request.resource.data.keys().hasOnly(['texto', 'categoria', 'esFrecuente'])
+          && request.resource.data.keys().hasAll(['texto', 'categoria', 'esFrecuente'])
+          && request.resource.data.texto is string
+          && request.resource.data.texto.size() > 0 && request.resource.data.texto.size() <= 500
+          && request.resource.data.categoria in ['Salud', 'Compras', 'Transporte', 'General']
+          && request.resource.data.esFrecuente is bool;
+      }
+    }
+  }
+}

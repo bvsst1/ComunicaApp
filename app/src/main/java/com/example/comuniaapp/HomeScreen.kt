@@ -1,140 +1,42 @@
 package com.example.comuniaapp
 
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CenterAlignedTopAppBar
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBarDefaults
+import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.semantics.contentDescription
-import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
-import androidx.compose.ui.unit.sp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun HomeScreen(
-    nombreUsuario: String,
-    onCerrarSesion: () -> Unit,
-    onAbrirPanel: () -> Unit,
-    onAbrirAvisos: () -> Unit,
-    onAbrirRecomendaciones: () -> Unit,
-    onAbrirUsuariosRegistrados: () -> Unit
-) {
-    var textoGrande by rememberSaveable { mutableStateOf(false) }
-    var altoContraste by rememberSaveable { mutableStateOf(false) }
-    val fondo = if (altoContraste) MaterialTheme.colorScheme.inverseOnSurface else MaterialTheme.colorScheme.background
-    val texto = if (altoContraste) MaterialTheme.colorScheme.inverseSurface else MaterialTheme.colorScheme.onBackground
-    val tamanoTitulo = if (textoGrande) 26.sp else 20.sp
-
-    Scaffold(
-        containerColor = fondo,
-        topBar = {
-            CenterAlignedTopAppBar(
-                title = { Text("ComunicaApp - Inicio", fontSize = tamanoTitulo) },
-                actions = {
-                    Button(
-                        onClick = { textoGrande = !textoGrande },
-                        modifier = Modifier
-                            .padding(end = 4.dp)
-                            .semantics { contentDescription = "Aumentar o reducir tamaño del texto" }
-                    ) { Text("A+") }
-                    Button(
-                        onClick = { altoContraste = !altoContraste },
-                        modifier = Modifier
-                            .padding(end = 8.dp)
-                            .semantics { contentDescription = "Activar o desactivar alto contraste" }
-                    ) { Text("Contraste") }
-                },
-                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(containerColor = fondo)
-            )
-        }
-    ) { padding ->
-        Column(
-            modifier = Modifier
-                .fillMaxSize()
-                .padding(padding)
-                .verticalScroll(rememberScrollState())
-                .padding(24.dp),
-            verticalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
-            Card(modifier = Modifier.fillMaxWidth()) {
-                Text(
-                    text = "¡Hola, $nombreUsuario! Bienvenido a tu espacio accesible",
-                    modifier = Modifier.padding(24.dp),
-                    color = texto,
-                    fontSize = if (textoGrande) 26.sp else 21.sp,
-                    style = MaterialTheme.typography.titleLarge
-                )
+fun HomeScreen(nombreUsuario: String, textoGrande: Boolean, altoContraste: Boolean, cargando: Boolean,
+               onTextoGrande: () -> Unit, onContraste: () -> Unit, onCerrarSesion: () -> Unit,
+               onAbrirPanel: () -> Unit, onAbrirHistorial: () -> Unit, onAbrirAvisos: () -> Unit,
+               onAbrirRecomendaciones: () -> Unit, onAbrirUsuariosRegistrados: () -> Unit) {
+    Scaffold(topBar = { CenterAlignedTopAppBar(title = { Text("ComunicaApp") }) }) { padding ->
+        Column(Modifier.fillMaxSize().padding(padding).verticalScroll(rememberScrollState()).padding(24.dp),
+            verticalArrangement = Arrangement.spacedBy(16.dp)) {
+            Text("¡Hola, $nombreUsuario!", style = MaterialTheme.typography.headlineSmall)
+            Text("Tu espacio para comunicarte con claridad.")
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                OutlinedButton(onClick = onTextoGrande, modifier = Modifier.weight(1f)) { Text(if (textoGrande) "Texto normal" else "Texto grande") }
+                OutlinedButton(onClick = onContraste, modifier = Modifier.weight(1f)) { Text(if (altoContraste) "Contraste normal" else "Alto contraste") }
             }
-            AccesoRapido(
-                titulo = "Escribir para Comunicar",
-                descripcion = "Abrir panel de frases y comunicación visual rápida",
-                textoGrande = textoGrande,
-                onClick = onAbrirPanel
-            )
-            AccesoRapido(
-                titulo = "Panel de Noticias y Avisos",
-                descripcion = "Abrir noticias y avisos accesibles",
-                textoGrande = textoGrande,
-                onClick = onAbrirAvisos
-            )
-            AccesoRapido(
-                titulo = "Historial de Frases Rápidas",
-                descripcion = "Abrir historial de frases rápidas",
-                textoGrande = textoGrande,
-                onClick = onAbrirPanel
-            )
-            AccesoRapido(
-                titulo = "Recomendaciones de la semana",
-                descripcion = "Abrir consejos de comunicación de la semana",
-                textoGrande = textoGrande,
-                onClick = onAbrirRecomendaciones
-            )
-            AccesoRapido(
-                titulo = "Usuarios registrados",
-                descripcion = "Abrir tabla de usuarios registrados",
-                textoGrande = textoGrande,
-                onClick = onAbrirUsuariosRegistrados
-            )
-            OutlinedButton(onClick = onCerrarSesion, modifier = Modifier.fillMaxWidth()) {
-                Text("Cerrar sesión", fontSize = if (textoGrande) 20.sp else 16.sp)
-            }
+            AccesoRapido("Escribir para comunicar", "Escribe, muestra y lee tus frases", onAbrirPanel)
+            AccesoRapido("Panel de noticias y avisos", "Información accesible de la aplicación", onAbrirAvisos)
+            AccesoRapido("Historial de frases rápidas", "Consulta y administra tus frases guardadas", onAbrirHistorial)
+            AccesoRapido("Recomendaciones de la semana", "Consejos para facilitar la comunicación", onAbrirRecomendaciones)
+            AccesoRapido("Mi perfil", "Consulta los datos de tu cuenta", onAbrirUsuariosRegistrados)
+            OutlinedButton(onClick = onCerrarSesion, enabled = !cargando, modifier = Modifier.fillMaxWidth()) { Text("Cerrar sesión") }
         }
     }
 }
-
 @Composable
-private fun AccesoRapido(
-    titulo: String,
-    descripcion: String,
-    textoGrande: Boolean,
-    onClick: () -> Unit = {}
-) {
-    Card(
-        modifier = Modifier
-            .fillMaxWidth()
-            .semantics { contentDescription = descripcion },
-        onClick = onClick
-    ) {
-        Column(modifier = Modifier.padding(20.dp)) {
-            Text(titulo, fontSize = if (textoGrande) 22.sp else 18.sp, style = MaterialTheme.typography.titleMedium)
+private fun AccesoRapido(titulo: String, descripcion: String, onClick: () -> Unit) {
+    Card(onClick = onClick, modifier = Modifier.fillMaxWidth()) {
+        Column(Modifier.padding(20.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
+            Text(titulo, style = MaterialTheme.typography.titleMedium)
             Text(descripcion, style = MaterialTheme.typography.bodyMedium)
         }
     }
